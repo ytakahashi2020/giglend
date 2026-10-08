@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; base-uri 'none'; form-action 'none'">
+<meta charset="utf-8">
+<title>GigLend</title>
+<style>
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+body{margin:0;width:1280px;height:720px;background:#0f1419;color:#e6edf3;overflow:hidden;}
+.header{padding:18px 32px;border-bottom:1px solid #223;display:flex;justify-content:space-between;align-items:center;}
+.header h1{margin:0;font-size:24px;color:#4fd1c5;}
+.header p{margin:2px 0 0;font-size:13px;color:#9fb0c0;}
+.tabs{display:flex;gap:8px;padding:16px 32px;}
+.tab{padding:10px 20px;border-radius:8px;background:#1a2230;cursor:pointer;font-size:14px;border:1px solid #2a3545;}
+.tab.active{background:#4fd1c5;color:#0f1419;font-weight:bold;}
+.content{padding:10px 32px;}
+.card{background:#161d29;border:1px solid #2a3545;border-radius:12px;padding:24px;margin-bottom:16px;}
+.card h2{margin:0 0 8px;font-size:16px;color:#9fb0c0;font-weight:normal;}
+.score{font-size:48px;font-weight:bold;color:#4fd1c5;}
+.sub{font-size:13px;color:#9fb0c0;margin-top:4px;}
+.row{display:flex;gap:16px;}
+.row .card{flex:1;}
+button{background:#4fd1c5;color:#0f1419;border:none;padding:12px 22px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;}
+button:hover{background:#3bb8ad;}
+.hidden{display:none;}
+.panel{background:#10251f;border:1px solid #2f6f5c;border-radius:10px;padding:16px;margin-top:14px;font-size:14px;}
+input{background:#0f1419;border:1px solid #2a3545;color:#e6edf3;padding:10px;border-radius:8px;font-size:14px;width:140px;margin-right:10px;}
+.footer{position:absolute;bottom:8px;left:32px;font-size:11px;color:#5a6b7a;}
+.statbig{font-size:28px;font-weight:bold;color:#4fd1c5;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>GigLend</h1>
+    <p>Undercollateralized microloans for gig workers backed by on-chain income history</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-borrower" data-demo="tab-borrower" onclick="showTab('borrower')">Borrower Dashboard</div>
+  <div class="tab" id="tab-lender" data-demo="tab-lender" onclick="showTab('lender')">Lender Vault</div>
+</div>
+
+<div class="content">
+
+  <div id="view-borrower">
+    <div class="row">
+      <div class="card">
+        <h2>Income Reputation Score</h2>
+        <div class="score" id="score-text" data-demo="score-text">742</div>
+        <div class="sub">Built from 128 verified USDC payments · 94% on-time rate</div>
+      </div>
+      <div class="card">
+        <h2>Available Credit</h2>
+        <div class="statbig">$500 USDC</div>
+        <div class="sub">No collateral required — scored by on-chain history</div>
+        <button id="btn-request-loan" data-demo="btn-request-loan" onclick="requestLoan()" style="margin-top:10px;">Request $500 Loan</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="loan-panel" data-demo="loan-panel">
+      <strong>✅ Loan Approved!</strong> $500 USDC sent to your wallet. Repayment of $512 due in 14 days.
+      <div style="margin-top:12px;">
+        <button id="btn-repay" data-demo="btn-repay" onclick="repayLoan()">Repay Now</button>
+      </div>
+      <div class="panel hidden" id="repay-result" data-demo="repay-result">
+        🎉 Repaid in full! Reputation score increased by +12 points.
+      </div>
+    </div>
+  </div>
+
+  <div id="view-lender" class="hidden">
+    <div class="row">
+      <div class="card">
+        <h2>Total Vault Deposits (USDC)</h2>
+        <div class="statbig" id="vault-total" data-demo="vault-total">$1,204,500</div>
+        <div class="sub">Funds pooled USDC microloans to gig workers</div>
+      </div>
+      <div class="card">
+        <h2>Current APY</h2>
+        <div class="statbig">9.4%</div>
+        <div class="sub">Yield from borrower repayments, scored by on-chain credit model</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Deposit USDC</h2>
+      <input type="text" id="input-deposit" data-demo="input-deposit" placeholder="1000" value="1000">
+      <button id="btn-deposit" data-demo="btn-deposit" onclick="deposit()">Deposit</button>
+      <div class="panel hidden" id="deposit-result" data-demo="deposit-result">
+        ✅ Deposited $1,000 USDC! Your position now earns 9.4% APY.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Prototype — all data is simulated</div>
+
+<script>
+function showTab(t){
+  document.getElementById('tab-borrower').classList.toggle('active', t==='borrower');
+  document.getElementById('tab-lender').classList.toggle('active', t==='lender');
+  document.getElementById('view-borrower').classList.toggle('hidden', t!=='borrower');
+  document.getElementById('view-lender').classList.toggle('hidden', t!=='lender');
+}
+function requestLoan(){
+  document.getElementById('loan-panel').classList.remove('hidden');
+  document.getElementById('btn-request-loan').innerText = 'Loan Requested';
+}
+function repayLoan(){
+  document.getElementById('repay-result').classList.remove('hidden');
+  document.getElementById('score-text').innerText = '754';
+  document.getElementById('btn-repay').innerText = 'Repaid ✓';
+}
+function deposit(){
+  document.getElementById('deposit-result').classList.remove('hidden');
+  document.getElementById('vault-total').innerText = '$1,205,500';
+}
+</script>
+</body>
+</html>
